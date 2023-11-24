@@ -1,0 +1,12 @@
+{
+  "parent": "",
+  "properties": {
+    "device_type": {
+      "value": "base_device",
+      "writable": 0
+    }
+  },
+  "actions": {
+
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "parent": "base_device",
+  "properties": {
+    "device_type": {
+      "value": "virtual_device",
+      "writable": 0
+    },
+    "test1": {
+      "value": "test1"
+    }
+  },
+  "actions": {
+
+  }
+}
