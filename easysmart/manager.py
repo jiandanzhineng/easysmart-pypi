@@ -52,20 +52,21 @@ class Manager:
     client = None
     automation = None
 
-    def __init__(self, on_device_connect=None, on_device_value_change=None, on_device_action=None):
+    def __init__(self, on_message_cb=None, on_device_disconnect_cb=None):
         self.client_id = 'MQTT_MAIN' + os.urandom(6).hex()
 
-        self.on_device_connect = on_device_connect
-        self.on_device_value_change = on_device_value_change
-        self.on_device_action = on_device_action
+        self.on_message_cb = on_message_cb
+        self.on_device_disconnect_cb = on_device_disconnect_cb
 
         self.devices = {}
 
     def subscribe(self, *args, **kwargs):
         return self.client.subscribe(*args, **kwargs)
 
-    def publish(self, topic, payload=None, qos=0, retain=False, properties=None):
-        return self.client.publish(topic, payload, qos, retain, properties)
+    async def publish(self, topic, payload=None, qos=0, retain=False, properties=None):
+        print(f'publish: {topic} {payload}')
+        await self.client.publish(topic=topic, payload=payload, qos=qos, retain=retain, properties=properties)
+        # return self.client.publish(topic, payload, qos, retain, properties)
 
     def loop_forever(self):
         self.client.loop_start()
@@ -78,16 +79,16 @@ class Manager:
         # self._thread.start()
         return self.client.loop_start()
 
-    def thread_main(self):
+    async def thread_main(self):
         """
         主线程
         :return: None
         """
         while True:
-            time.sleep(1)
-            self._seconds_work()
+            await asyncio.sleep(1)
+            await self._seconds_work()
 
-    def _seconds_work(self):
+    async def _seconds_work(self):
         """
         每秒被调用一次
         :return: None
@@ -108,6 +109,8 @@ class Manager:
         fail_num = 0
         debug = True
         if debug: warnings.warn('debug mode is on')
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.thread_main())
         while True:
             try:
                 await self._async_loop_start()
@@ -149,7 +152,8 @@ class Manager:
                         print(f'json.loads error: {data}')
                         continue
                     print(f'{data}')
-                    await self.msg_process(message, data)
+                    # await self.msg_process(message, data)
+                    asyncio.create_task(self.msg_process(message, data))
 
     def load_auto_config(self):
         if self.automation:
@@ -170,6 +174,11 @@ class Manager:
         self.client.publish('/test', 'hello world', 0)
 
     async def msg_process(self, msg, data):
+        await self._msg_process(msg, data)
+        if self.on_message_cb is not None:
+            asyncio.gather(self.on_message_cb(msg, data))
+
+    async def _msg_process(self, msg, data):
         topic = msg.topic.value
         # 如果topic形式为 /dpub/{mac}
         if topic.startswith('/dpub/'):

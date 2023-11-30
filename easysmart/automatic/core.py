@@ -1,3 +1,8 @@
+import asyncio
+
+from easysmart import Manager
+
+
 class AutomaticCore(object):
     def __init__(self):
         pass
@@ -5,16 +10,31 @@ class AutomaticCore(object):
     def run(self):
         pass
 
-    def on_device_connect(self):
+    async def start(self):
+        manager = Manager(on_message_cb=self.on_message_cb, on_device_disconnect_cb=self.on_device_disconnect_cb)
+        asyncio.gather(manager.async_loop_start())
+
+    async def on_message_cb(self, topic, payload):
         pass
 
-    def on_device_value_change(self):
+    async def on_device_connect(self):
         pass
 
-    def on_device_action(self):
+    async def on_device_value_change(self):
         pass
 
-    def load_automation(self):
+    async def on_device_action(self):
+        pass
+
+    async def on_device_disconnect_cb(self):
+        pass
+
+    async def on_message(self, topic, payload):
         pass
 
 
+'''
+1. 触发条件
+时间，设备动作，设备属性变化，设备连接，设备断开
+2. 执行动作
+'''

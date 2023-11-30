@@ -1,1 +1,0 @@
-{"parent": "base_device", "properties": {"distance": {"type": "float", "name": "\u5f53\u524d\u8ddd\u79bb", "writable": false}, "report_delay_ms": {"type": "int", "min": 1, "max": 100000, "name": "\u6c47\u62a5\u95f4\u9694"}}, "actions": {}, "name": "\u64ce\u5929\u67f11\u53f7"}

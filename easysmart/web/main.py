@@ -69,6 +69,18 @@ async def run_app(
     await main_task
 
 
+def build_response(msg=None, data=None, code=200, success=True, ):
+    res = {
+        'code': code,
+        'success': success,
+    }
+    if data is not None:
+        res['data'] = data
+    if msg is not None:
+        res['msg'] = msg
+    return web.json_response(res)
+
+
 class WebServer:
 
     def __init__(self, manager: 'Manager'):
@@ -77,32 +89,64 @@ class WebServer:
     async def web_start(self):
         app = web.Application()
         app.add_routes([web.get('/', self.handle),
-                        web.get('/devices', self.devices_view)])
+                        web.get('/devices/', self.devices_view),
+                        web.get('/device/{mac}/', self.device_get_view),
+                        web.post('/device/{mac}/', self.device_set_view),
+                        web.post('/device/{filter}/{detail}/', self.device_group_set_view),])
         await run_app(app, loop=asyncio.get_event_loop())
-        return
-        server = web.Server(self.handler)
-        runner = web.ServerRunner(server)
-        await runner.setup()
-        site = web.TCPSite(runner, 'localhost', 8080)
-        await site.start()
-
-        print("======= Serving on http://127.0.0.1:8080/ ======")
-
-        while True:
-            await asyncio.sleep(100 * 3600)
 
     async def handler(self, request):
-        return web.Response(text='1')
+        return build_response(data={'hello': 'world'})
 
     async def handle(self, request):
         name = request.match_info.get('name', "Anonymous")
-        text = "Hello, " + name
-        return web.Response(text=text)
+        return build_response(msg=f'hello {name}')
 
     async def devices_view(self, request):
         devices = self.manager.devices
         d = []
         for mac, device in devices.items():
             d.append(device.to_dict())
-        text = json.dumps(d)
-        return web.Response(text=text)
+        return build_response(data=d)
+
+    async def device_get_view(self, request):
+        mac = request.match_info.get('mac', "Anonymous")
+        if mac in self.manager.devices:
+            device = self.manager.devices[mac]
+        else:
+            return web.Response(text=json.dumps({'error': 'device not found'}))
+        return build_response(data=device.to_dict())
+
+    async def device_set_view(self, request):
+        mac = request.match_info.get('mac', "Anonymous")
+        if mac in self.manager.devices:
+            device = self.manager.devices[mac]
+        else:
+            return build_response(success=False, msg='device not found')
+        data = await request.post()
+        for k, v in data.items():
+            asyncio.gather(device.set_property(k, v))
+        return build_response()
+
+    async def device_group_set_view(self, request):
+        filter = request.match_info.get('filter', "")
+        detail = request.match_info.get('detail', "")
+        if filter == "":
+            return build_response(success=False, msg='filter is empty')
+        if filter == 'all':
+            devices = self.manager.devices
+        else:
+            devices = []
+            for mac, device in self.manager.devices.items():
+                device_detail = getattr(device, filter)
+                if device_detail == detail:
+                    devices.append(device)
+        data = await request.post()
+        for device in devices:
+            for k, v in data.items():
+                asyncio.gather(device.set_property(k, v))
+
+        res = {
+            'affected_devices': [device.mac for device in devices],
+        }
+        return build_response(data=res)

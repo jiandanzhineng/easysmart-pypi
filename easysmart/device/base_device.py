@@ -19,6 +19,8 @@ class BaseDevice:
         device_define = get_device_define(device_type)
 
         if device_define is None:
+            # device_define = get_device_define('base_device')
+            # logging.warning(f'get_device_define error: {device_type}')
             raise Exception(f'get_device_define error: {device_type}')
         self.properties = device_define['properties']
         self.actions = device_define['actions']
@@ -39,10 +41,13 @@ class BaseDevice:
         await self.publish(data)
 
     async def set_property(self, property_name, value):
-        if self.properties[property_name]['type'] == 'int':
-            value = int(value)
-        elif self.properties[property_name]['type'] == 'float':
-            value = float(value)
+        if property_name not in self.properties:
+            logging.warning(f'property {property_name} not in {self.mac}')
+        else:
+            if self.properties[property_name]['type'] == 'int':
+                value = int(value)
+            elif self.properties[property_name]['type'] == 'float':
+                value = float(value)
         data = {
             'method': 'set',
             'key': property_name,

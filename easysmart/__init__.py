@@ -10,6 +10,15 @@ from easysmart.mdns.mdns_async import mdns_async_register
 from easysmart.mqtt_server.mqtt_server import start_emqx_server
 from easysmart.web.main import WebServer
 
+async def test_publish(manager):
+    while True:
+        await asyncio.sleep(5)
+        print('publish')
+        await manager.publish('/all/', 'hello world', 0)
+
+
+
+
 
 def start_server(root_path=None):
     if root_path is None:
@@ -24,6 +33,9 @@ def start_server(root_path=None):
     asyncio.gather(manager.async_loop_start())
     web_manager = WebServer(manager)
     asyncio.gather(web_manager.web_start())
+
+    asyncio.gather(test_publish(manager))
+
 
     try:
         loop.run_forever()

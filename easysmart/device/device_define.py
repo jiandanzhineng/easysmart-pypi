@@ -4,7 +4,7 @@ import os
 import pathlib
 import logging
 
-DEVICE_DEFINE_PATH = r'script\device\devices_define'
+DEVICE_DEFINE_PATH = r'devices_define'
 
 
 def get_device_define(device_type):
@@ -32,6 +32,7 @@ def _get_device_define(device_type):
         logging.info(f'create devices_define dir')
         os.makedirs(DEVICE_DEFINE_PATH)
     json_file = f'{DEVICE_DEFINE_PATH}/{device_type}.json'
+    print(f'get device define from {json_file}')
     if os.path.exists(json_file):
         logging.info(f'get device define from local')
         with open(json_file, 'r', encoding='utf-8') as f:
@@ -40,8 +41,8 @@ def _get_device_define(device_type):
     else:
         # download device define from server and save it to local
         # url: http://device.easysmart.top/device_define/{device_type}.json
-        logging.info(f'get device define from server')
         url = f'http://device.easysmart.top/device_define/{device_type}.json'
+        logging.info(f'get device define from server：{url}')
         try:
             r = requests.get(url)
             if r.status_code != 200:

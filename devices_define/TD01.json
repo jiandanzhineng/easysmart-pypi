@@ -1,0 +1,20 @@
+{
+  "parent": "base_device",
+  "properties": {
+    "power1": {
+      "type": "int",
+      "min": 0,
+      "max": 255,
+      "name": "1号跳蛋强度"
+    },
+    "power2": {
+      "type": "int",
+      "min": 0,
+      "max": 255,
+      "name": "2号跳蛋强度"
+    }
+  },
+  "actions": {
+  },
+  "name": "跳弹01"
+}
