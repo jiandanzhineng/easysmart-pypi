@@ -38,7 +38,7 @@ async def download_emqx_server(root_path):
     # unzip emqx.zip to root_path/emqx
     emqx_path = root_path.joinpath(Path(r'emqx'))
     print(f'emqx path is {emqx_path}')
-    with zipfile.ZipFile('emqx.zip', 'r') as zip_ref:
+    with zipfile.ZipFile(emqx_zip_path, 'r') as zip_ref:
         zip_ref.extractall(emqx_path)
 
 
@@ -92,3 +92,23 @@ async def check_emqx_server(root_path):
         print('emqx server is not running')
         return False
 
+def sync_check_emqx_server(root_path):
+    print(f'check emqx server')
+    # if path not exists, create it
+    emqx_path = root_path.joinpath(Path(r'emqx\bin\emqx_ctl'))
+    if os.path.exists(emqx_path):
+        print(f'emqx path is {emqx_path}')
+    else:
+        raise FileNotFoundError(f'emqx path {emqx_path} not exists')
+    # 检测emqx是否正在运行
+    # run "emqx\bin\emqx status" and get the result
+    result = os.popen(f"{emqx_path} status").read()
+    print(f'emqx status is {result}')
+    if 'is starting' in result:
+        return 'starting'
+    if 'is started' in result:
+        print('emqx server is running')
+        return 'running'
+    else:
+        print('emqx server is not running')
+        return False

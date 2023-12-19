@@ -92,11 +92,16 @@ class WebServer:
                         web.get('/devices/', self.devices_view),
                         web.get('/device/{mac}/', self.device_get_view),
                         web.post('/device/{mac}/', self.device_set_view),
-                        web.post('/device/{filter}/{detail}/', self.device_group_set_view),])
-        await run_app(app, loop=asyncio.get_event_loop())
+                        web.post('/device/set/{filter}/{detail}/', self.device_group_set_view),
+                        web.post('/device/act/{filter}/{detail}/', self.device_group_set_view),])
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, 'localhost', 8555)
+        await site.start()
+        # await run_app(app, loop=asyncio.get_event_loop())
 
     async def handler(self, request):
-        return build_response(data={'hello': 'world'})
+        return build_response(msg='运行中')
 
     async def handle(self, request):
         name = request.match_info.get('name', "Anonymous")
@@ -131,20 +136,41 @@ class WebServer:
     async def device_group_set_view(self, request):
         filter = request.match_info.get('filter', "")
         detail = request.match_info.get('detail', "")
+
+        devices = await self.device_filter(detail, filter)
         if filter == "":
             return build_response(success=False, msg='filter is empty')
+        data = await request.post()
+        for device in devices:
+            for k, v in data.items():
+                asyncio.gather(device.set_property(k, v))
+
+        res = {
+            'affected_devices': [device.mac for device in devices],
+        }
+        return build_response(data=res)
+
+    async def device_filter(self, detail, filter):
         if filter == 'all':
             devices = self.manager.devices
+        elif filter == '':
+            return []
         else:
             devices = []
             for mac, device in self.manager.devices.items():
                 device_detail = getattr(device, filter)
                 if device_detail == detail:
                     devices.append(device)
+        return devices
+
+    async def device_group_act_view(self, request):
+        filter = request.match_info.get('filter', "")
+        detail = request.match_info.get('detail', "")
+
+        devices = await self.device_filter(detail, filter)
         data = await request.post()
         for device in devices:
-            for k, v in data.items():
-                asyncio.gather(device.set_property(k, v))
+            asyncio.create_task(device.publish(data))
 
         res = {
             'affected_devices': [device.mac for device in devices],
