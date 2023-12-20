@@ -23,3 +23,9 @@ main_server_thread.start()
 # HTTP API
 
 https://console-docs.apipost.cn/preview/91b7075b8e535790/83ff4d1e5753d015
+
+
+# 使用本项目的demo
+
+## 人类反馈强化学习（开发中）
+https://github.com/jiandanzhineng/humanRL
