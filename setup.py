@@ -7,7 +7,7 @@ import datetime
 with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
-EASYSMART_VERSION = '20231130225429'
+EASYSMART_VERSION = '20231219221646'
 time_version = EASYSMART_VERSION
 # time_version = datetime.datetime.now().strftime('%Y%m%d')
 

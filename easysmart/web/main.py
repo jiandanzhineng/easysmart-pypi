@@ -93,7 +93,7 @@ class WebServer:
                         web.get('/device/{mac}/', self.device_get_view),
                         web.post('/device/{mac}/', self.device_set_view),
                         web.post('/device/set/{filter}/{detail}/', self.device_group_set_view),
-                        web.post('/device/act/{filter}/{detail}/', self.device_group_set_view),])
+                        web.post('/device/act/{filter}/{detail}/', self.device_group_act_view),])
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, 'localhost', 8555)
@@ -169,8 +169,17 @@ class WebServer:
 
         devices = await self.device_filter(detail, filter)
         data = await request.post()
+        new_data = {}
+        for k, v in data.items():
+            value = v
+            if str(value).isdigit():
+                value = int(value)
+            elif '.' in str(value) and str(value).replace('.', '').isdigit():
+                value = float(value)
+            new_data[k] = value
+
         for device in devices:
-            asyncio.create_task(device.publish(data))
+            asyncio.create_task(device.publish(new_data))
 
         res = {
             'affected_devices': [device.mac for device in devices],

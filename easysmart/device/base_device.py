@@ -20,11 +20,15 @@ class BaseDevice:
 
         if device_define is None:
             # device_define = get_device_define('base_device')
-            # logging.warning(f'get_device_define error: {device_type}')
-            raise Exception(f'get_device_define error: {device_type}')
-        self.properties = device_define['properties']
-        self.actions = device_define['actions']
-        self.name = device_define['name']
+            logging.warning(f'get_device_define error: {device_type}')
+            # raise Exception(f'get_device_define error: {device_type}')
+            self.properties = {}
+            self.actions = {}
+            self.name = device_type
+        else:
+            self.properties = device_define['properties']
+            self.actions = device_define['actions']
+            self.name = device_define['name']
 
     async def publish(self, data):
         data['msg_id'] = self.msg_id
@@ -42,7 +46,7 @@ class BaseDevice:
 
     async def set_property(self, property_name, value):
         if property_name not in self.properties:
-            logging.warning(f'property {property_name} not in {self.mac}')
+            logging.warning(f'property {property_name} not in {self.mac}, 请自己注意输入数据格式')
         else:
             if self.properties[property_name]['type'] == 'int':
                 value = int(value)
@@ -62,11 +66,14 @@ class BaseDevice:
         update_flag = False
         if property_name not in self.properties:
             logging.warning(f'property {property_name} not in {self.mac}')
-            return
         if not hasattr(self, property_name):
             # 如果没有这个属性，就创建一个
             update_flag = True
             setattr(self, property_name, value)
+            self.properties[property_name] = {
+                'type': 'unknown',
+                'name': property_name,
+            }
         else:
             # 如果有这个属性，就更新这个属性
             old_value = getattr(self, property_name)
