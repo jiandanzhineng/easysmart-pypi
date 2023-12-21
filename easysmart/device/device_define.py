@@ -1,10 +1,79 @@
-import requests
-import json
-import os
-import pathlib
 import logging
 
-DEVICE_DEFINE_PATH = r'devices_define'
+DEVICES_DEFINE = {}
+
+DEVICES_DEFINE['base_device'] = {
+    "parent": "",
+    "properties": {
+        "device_type": {
+            "value": "base_device",
+            "writable": 0
+        }
+    },
+    "actions": {
+
+    }
+}
+
+DEVICES_DEFINE['DIANJI'] = {
+    "parent": "base_device",
+    "properties": {
+        "power": {
+            "type": "int",
+            "name": "当前电击强度"
+        },
+        "delay": {
+            "type": "int",
+            "min": 1,
+            "max": 100000,
+            "name": "电击间隔ms"
+        }
+    },
+    "actions": {
+    },
+    "name": "电击器"
+}
+
+DEVICES_DEFINE['QTZ01'] = {
+    "parent": "base_device",
+    "properties": {
+        "distance": {
+            "type": "float",
+            "name": "当前距离",
+            "writable": False
+        },
+        "report_delay_ms": {
+            "type": "int",
+            "min": 1,
+            "max": 100000,
+            "name": "汇报间隔"
+        }
+    },
+    "actions": {
+    },
+    "name": "擎天柱1号"
+}
+
+DEVICES_DEFINE['TD01'] = {
+    "parent": "base_device",
+    "properties": {
+        "power1": {
+            "type": "int",
+            "min": 0,
+            "max": 255,
+            "name": "1号跳蛋强度"
+        },
+        "power2": {
+            "type": "int",
+            "min": 0,
+            "max": 255,
+            "name": "2号跳蛋强度"
+        }
+    },
+    "actions": {
+    },
+    "name": "跳弹01"
+}
 
 
 def get_device_define(device_type):
@@ -19,42 +88,15 @@ def get_device_define(device_type):
         if define is None: continue
         device_define['properties'].update(define['properties'])
         device_define['actions'].update(define['actions'])
-        for k,v in define.items():
-            if k in ['properties','actions']: continue
+        for k, v in define.items():
+            if k in ['properties', 'actions']: continue
             device_define[k] = v
     return device_define
 
 
 def _get_device_define(device_type):
     logging.info(f'get device define {device_type}')
-    # check if dir devices_define exists
-    if not os.path.exists(DEVICE_DEFINE_PATH):
-        logging.info(f'create devices_define dir')
-        os.makedirs(DEVICE_DEFINE_PATH)
-    json_file = f'{DEVICE_DEFINE_PATH}/{device_type}.json'
-    print(f'get device define from {json_file}')
-    if os.path.exists(json_file):
-        logging.info(f'get device define from local')
-        with open(json_file, 'r', encoding='utf-8') as f:
-            device_define = json.load(f)
-            return device_define
-    else:
-        # download device define from server and save it to local
-        # url: http://device.easysmart.top/device_define/{device_type}.json
-        url = f'http://device.easysmart.top/device_define/{device_type}.json'
-        logging.info(f'get device define from server：{url}')
-        try:
-            r = requests.get(url)
-            if r.status_code != 200:
-                logging.warning(f'get device define {device_type} failed {r.status_code}')
-                return
-            device_define = r.json()
-        except Exception as e:
-            logging.warning(f'get device define {device_type} failed {e}')
-            return
-        with open(f'{DEVICE_DEFINE_PATH}/{device_type}.json', 'w', encoding='utf-8') as f:
-            json.dump(device_define, f)
-        return device_define
+    return DEVICES_DEFINE.get(device_type)
 
 
 if __name__ == '__main__':
