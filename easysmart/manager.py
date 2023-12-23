@@ -95,10 +95,10 @@ class Manager:
         """
         # print('seconds work')
         # print 当前设备列表
-        print('devices:')
+        # print('devices:')
         need_del = []
         for k, v in self.devices.items():
-            print(f'{k}: {v}')
+            # print(f'{k}: {v}')
             if time.time() - v.last_active_time > 30:
                 print(f'device {k} offline')
                 need_del.append(k)

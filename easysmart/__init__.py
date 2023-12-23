@@ -20,7 +20,7 @@ async def test_publish(manager):
         await manager.publish('/test/', 'hello world', 0)
 
 
-def start_server(root_path=None):
+def start_server(root_path=None, block=True):
     if sys.platform.lower() == "win32" or os.name.lower() == "nt":
         from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
         set_event_loop_policy(WindowsSelectorEventLoopPolicy())
@@ -42,15 +42,18 @@ def start_server(root_path=None):
     # asyncio.gather(web_manager.web_start())
     # # asyncio.gather(test_publish(manager))
 
-    asyncio.gather(async_start_server(root_path))
-
-    try:
-        loop.run_forever()
-    except KeyboardInterrupt:
-        print("stop server")
+    main_manager = Manager()
+    asyncio.gather(async_start_server(root_path, main_manager))
+    if block:
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            print("stop server")
+    else:
+        return main_manager, loop
     # asyncio.run(main())
 
-async def async_start_server(root_path=None):
+async def async_start_server(root_path=None, main_manager=None):
     if root_path is None:
         # get the root path of this project
         root_path = pathlib.Path(__file__).parent.parent.absolute()
@@ -58,7 +61,8 @@ async def async_start_server(root_path=None):
     # start the manager
     asyncio.gather(start_emqx_server(root_path))
     await asyncio.gather(mdns_async_register())
-    main_manager = Manager()
+    if manager is None:
+        main_manager = Manager()
     asyncio.gather(main_manager.async_loop_start())
     web_manager = WebServer(main_manager)
     asyncio.gather(web_manager.web_start())
