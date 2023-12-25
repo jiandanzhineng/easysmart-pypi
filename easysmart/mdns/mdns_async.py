@@ -35,8 +35,8 @@ async def mdns_async_register():
     )
     runner = AsyncMdnsRunner(IPVersion.V4Only)
     await runner.register_services([info])
-    # while True:
-    #     await asyncio.sleep(1)
+    while True:
+        await asyncio.sleep(1)
 
 
 class AsyncMdnsRunner:

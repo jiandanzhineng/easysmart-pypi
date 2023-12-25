@@ -10,7 +10,7 @@ import paho
 
 from easysmart.mdns.mdns_async import mdns_async_register
 from easysmart.mqtt_server.mqtt_server import start_emqx_server
-from easysmart.web.main import WebServer
+from easysmart.web.webmain import WebServer
 
 
 async def test_publish(manager):
