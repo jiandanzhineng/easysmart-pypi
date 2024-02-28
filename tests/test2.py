@@ -1,37 +1,29 @@
-import multiprocessing as mp
-import os
 import time
+import asyncio
+
+async def say(text, sec):
+    await asyncio.sleep(sec)
+    print(text)
+
+async def main():
+    print('start main')
+    start = time.monotonic()
+    await asyncio.gather(
+        say("First", 2),
+        say("Second", 1),
+    )
+    end = time.monotonic()
+    print(f"Elapsed: {end-start}")
 
 
-def f(f2):
-    for i in range(10):
-        time.sleep(0.1)
-        f2()
+from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
 
-def f3(f):
-    f()
-
-
-class A:
-    def __init__(self):
-        self.mac = os.urandom(6).hex()
-        self.p = mp.Process(target=f, args=(self.f2,))
-        self.p.start()
-
-    def f(self):
-        print(f'f is {self.mac}')
-
-    def f2(self):
-        print(f'f2 is {self.mac}')
-        self.p = mp.Process(target=f3, args=(self.f,))
-        self.p.start()
-
-class B:
-    def action1(self):
-        ...
-
-if __name__ == '__main__':
-    a = B()
-    res = hasattr(a, 'action1')
-    print(res)
-    print(dir(a))
+set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+try:
+    loop = asyncio.get_event_loop()
+except:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+main_co = main()
+print(main_co)
+asyncio.run(main_co)

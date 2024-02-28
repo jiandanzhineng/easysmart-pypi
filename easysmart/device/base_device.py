@@ -89,5 +89,5 @@ class BaseDevice:
             'device_type': self.device_type,
             'mac': self.mac,
             'last_active_time': self.last_active_time,
-            'properties': {k: getattr(self, k) for k in self.properties.keys()},
+            'properties': {k: getattr(self, k) if hasattr(self, k) else None for k in self.properties.keys()},
         }

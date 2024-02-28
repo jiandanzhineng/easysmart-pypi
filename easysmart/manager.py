@@ -106,6 +106,7 @@ class Manager:
             self.devices.pop(k)
 
     async def async_loop_start(self):
+        print('启动主服务循环')
         fail_num = 0
         debug = True
         if debug: warnings.warn('debug mode is on')

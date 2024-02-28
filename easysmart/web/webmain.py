@@ -87,6 +87,7 @@ class WebServer:
         self.manager = manager
 
     async def web_start(self):
+        print('启动http服务器')
         app = web.Application()
         app.add_routes([web.get('/', self.handle),
                         web.get('/devices/', self.devices_view),
@@ -185,3 +186,12 @@ class WebServer:
             'affected_devices': [device.mac for device in devices],
         }
         return build_response(data=res)
+
+
+if __name__ == '__main__':
+    web_manager = WebServer(None)
+    loop = asyncio.get_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(web_manager.web_start())
+    print('web server start')
+    loop.run_forever()
