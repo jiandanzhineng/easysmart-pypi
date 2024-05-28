@@ -139,22 +139,28 @@ class Manager:
                 except Exception as e:
                     print(f'async_loop_start error: {e}')
                     await asyncio.sleep(1)
-                    raise e
             print('sub success')
-            async with self.client.messages() as messages:
-                async for message in messages:
-                    payload = message.payload.decode('utf-8')
-                    topic = message.topic
-                    print(f'async loop: {topic} {payload}')
-                    try:
-                        data = json.loads(payload)
-                    except:
-                        data = str(payload)
-                        print(f'json.loads error: {data}')
-                        continue
-                    print(f'{data}')
-                    # await self.msg_process(message, data)
-                    asyncio.create_task(self.msg_process(message, data))
+            while True:
+                try:
+                    async with self.client.messages() as messages:
+                        async for message in messages:
+                            payload = message.payload.decode('utf-8')
+                            topic = message.topic
+                            print(f'async loop: {topic} {payload}')
+                            try:
+                                data = json.loads(payload)
+                            except:
+                                data = str(payload)
+                                print(f'json.loads error: {data}')
+
+
+                                continue
+                            print(f'{data}')
+                            # await self.msg_process(message, data)
+                            asyncio.create_task(self.msg_process(message, data))
+                except Exception as e:
+                    print(f'async_loop_start error: {e}')
+                    await asyncio.sleep(1)
 
     def load_auto_config(self):
         if self.automation:

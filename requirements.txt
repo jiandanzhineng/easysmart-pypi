@@ -1,4 +1,4 @@
 paho-mqtt
 zeroconf
 aiohttp
-aiomqtt
+aiomqtt==1.2.1

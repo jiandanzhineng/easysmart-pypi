@@ -11,8 +11,7 @@ class AutomaticCore(object):
         pass
 
     async def start(self):
-        manager = Manager(on_message_cb=self.on_message_cb, on_device_disconnect_cb=self.on_device_disconnect_cb)
-        asyncio.gather(manager.async_loop_start())
+        ...
 
     async def on_message_cb(self, topic, payload):
         pass
