@@ -8,7 +8,8 @@ async def t():
     raise Exception('test exception')
 
 async def t2():
-    await t()
+    asyncio.create_task(t())
+    await asyncio.sleep(1)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(t2())

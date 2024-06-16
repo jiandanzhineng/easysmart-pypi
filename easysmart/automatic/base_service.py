@@ -3,18 +3,15 @@ import asyncio
 from easysmart import Manager
 
 
-class AutomaticCore(object):
-    def __init__(self):
-        pass
+class AutomaticService(object):
+    def __init__(self, manager: 'Manager'):
+        self.manager = manager
 
-    def run(self):
+    async def run(self):
         pass
 
     async def start(self):
         ...
-
-    async def on_message_cb(self, topic, payload):
-        pass
 
     async def on_device_connect(self):
         pass
@@ -25,7 +22,7 @@ class AutomaticCore(object):
     async def on_device_action(self):
         pass
 
-    async def on_device_disconnect_cb(self):
+    async def on_device_disconnect(self):
         pass
 
     async def on_message(self, topic, payload):

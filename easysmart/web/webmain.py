@@ -10,6 +10,7 @@ from aiohttp.web import _run_app
 from aiohttp.web_log import AccessLogger
 
 from easysmart import Manager
+from easysmart.automatic.base_service import AutomaticService
 
 
 async def run_app(
@@ -81,10 +82,11 @@ def build_response(msg=None, data=None, code=200, success=True, ):
     return web.json_response(res)
 
 
-class WebServer:
+class WebServer(AutomaticService):
 
-    def __init__(self, manager: 'Manager'):
-        self.manager = manager
+    async def start(self):
+        await super().start()
+        await self.web_start()
 
     async def web_start(self):
         print('启动http服务器')

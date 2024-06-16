@@ -32,8 +32,8 @@ async def mdns_async_register():
         port=80,
         properties=desc,
         server="easysmart.local.",
-        host_ttl=60 * 60 * 60,  # 60 hours
-        other_ttl=60 * 60 * 60,  # 60 hours
+        host_ttl=60 * 60 * 60 * 60,  # 60*60 hours
+        other_ttl=60 * 60 * 60 * 60,  # 60*60 hours
     )
     runner = AsyncMdnsRunner(IPVersion.V4Only)
     await runner.register_services([info])
@@ -42,6 +42,7 @@ async def mdns_async_register():
 
 
 class AsyncMdnsRunner:
+    tag = 'MDNSRunner'
     def __init__(self, ip_version: IPVersion) -> None:
         self.ip_version = ip_version
         self.aiozc: Optional[AsyncZeroconf] = None
@@ -51,7 +52,7 @@ class AsyncMdnsRunner:
         tasks = [self.aiozc.async_register_service(info) for info in infos]
         background_tasks = await asyncio.gather(*tasks)
         await asyncio.gather(*background_tasks)
-        print("Finished registration, press Ctrl-C to exit...")
+        print(f'[{self.tag}] register_services success')
         # while True:
         #     await asyncio.sleep(1)
 

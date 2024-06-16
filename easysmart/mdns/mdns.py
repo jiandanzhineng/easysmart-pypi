@@ -31,7 +31,9 @@ def mdns_register():
         addresses=[socket.inet_aton(get_host_ip())],
         port=80,
         properties=desc,
-        server="mqttserver.local.",
+        server="easysmart.local.",
+        host_ttl=60 * 60 * 60 * 60,  # 60*60 hours
+        other_ttl=60 * 60 * 60 * 60,  # 60*60 hours
     )
 
     zeroconf = Zeroconf(ip_version=ip_version)
@@ -46,7 +48,8 @@ def mdns_register():
     #     print("Unregistering...")
     #     zeroconf.unregister_service(info)
     #     zeroconf.close()
-    time.sleep(1)
+    while True:
+        time.sleep(1)
 
 
 

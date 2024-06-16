@@ -2,12 +2,14 @@ import asyncio
 import os
 import pathlib
 import sys
+import threading
 import time
 
 from easysmart.manager import Manager
 import zeroconf
 import paho
 
+from easysmart.mdns.mdns import mdns_register
 from easysmart.mdns.mdns_async import mdns_async_register
 from easysmart.mqtt_server.mqtt_server import start_emqx_server
 from easysmart.web.webmain import WebServer
@@ -20,7 +22,7 @@ async def test_publish(manager):
         await manager.publish('/test/', 'hello world', 0)
 
 
-def start_server(root_path=None, block=True):
+def start_server(root_path=None, block=True, services=None):
     if sys.platform.lower() == "win32" or os.name.lower() == "nt":
         from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
         set_event_loop_policy(WindowsSelectorEventLoopPolicy())
@@ -30,6 +32,14 @@ def start_server(root_path=None, block=True):
     print(f'root path is {root_path}')
     # # start the manager
     # asyncio.gather(start_emqx_server(root_path))
+
+    # create thread to register mdns
+    thread = threading.Thread(target=mdns_register)
+    thread.daemon = True
+    thread.start()
+
+
+
     try:
         loop = asyncio.get_event_loop()
     except:
@@ -44,7 +54,7 @@ def start_server(root_path=None, block=True):
 
     main_manager = Manager()
 
-    asyncio.run(async_start_server(root_path, main_manager), )
+    asyncio.run(async_start_server(root_path, main_manager, services=services), )
     print('main manager start')
     if block:
         try:
@@ -56,15 +66,19 @@ def start_server(root_path=None, block=True):
     # asyncio.run(main())
 
 
-async def async_start_server(root_path=None, main_manager=None):
+async def async_start_server(root_path=None, main_manager=None, services: list = None):
     print(f'async_start_server')
     if root_path is None:
         # get the root path of this project
         root_path = pathlib.Path(__file__).parent.parent.absolute()
     print(f'root path is {root_path}')
-    web_manager = WebServer(main_manager)
-    await asyncio.gather(
-        mdns_async_register(),
-        start_emqx_server(root_path),
-        main_manager.async_loop_start(),
-        web_manager.web_start())
+    # asyncio.create_task(mdns_async_register())
+    asyncio.create_task(start_emqx_server(root_path))
+    asyncio.create_task(main_manager.async_loop_start())
+    if services is None:
+        services = []
+    for service in services:
+        s = service(main_manager)
+        asyncio.create_task(s.start())
+    while True:
+        await asyncio.sleep(1)
