@@ -146,16 +146,15 @@ class Manager:
                         async for message in messages:
                             payload = message.payload.decode('utf-8')
                             topic = message.topic
-                            print(f'async loop: {topic} {payload}')
+                            # print hh:mm:ss topic payload
+                            print(f'[{time.strftime("%H:%M:%S", time.localtime(time.time()))}]: '
+                                  f'{topic}|{payload}')
                             try:
                                 data = json.loads(payload)
                             except:
                                 data = str(payload)
                                 print(f'json.loads error: {data}')
-
-
                                 continue
-                            print(f'{data}')
                             # await self.msg_process(message, data)
                             asyncio.create_task(self.msg_process(message, data))
                 except Exception as e:
@@ -197,6 +196,7 @@ class Manager:
                 else:
                     print(f'unknown device {mac} 等待该设备的report信息')
                     return
+            self.devices[mac].last_active_time = time.time() # 更新设备活跃时间
             method = data.get('method')
             if method == 'report':
                 new_data = data.copy()

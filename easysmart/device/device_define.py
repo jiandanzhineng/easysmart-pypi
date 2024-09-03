@@ -1,3 +1,4 @@
+import copy
 import logging
 
 DEVICES_DEFINE = {}
@@ -96,7 +97,7 @@ def get_device_define(device_type):
 
 def _get_device_define(device_type):
     logging.info(f'get device define {device_type}')
-    return DEVICES_DEFINE.get(device_type)
+    return copy.deepcopy(DEVICES_DEFINE.get(device_type))
 
 
 if __name__ == '__main__':

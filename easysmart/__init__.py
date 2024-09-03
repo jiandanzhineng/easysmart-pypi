@@ -54,7 +54,7 @@ def start_server(root_path=None, block=True, services=None):
 
     main_manager = Manager()
 
-    asyncio.run(async_start_server(root_path, main_manager, services=services), )
+    loop.create_task(async_start_server(root_path, main_manager, services=services), )
     print('main manager start')
     if block:
         try:
