@@ -11,7 +11,7 @@ async def control_tiaodan(manager: ezs.Manager):
     run_flag = True
     while True:
         for device in manager.devices.values():
-            if True or device.device_type == 'TD01':  # 检测设备是否是跳蛋
+            if device.device_type == 'TD01':  # 检测设备是否是跳蛋
                 if onoff:
                     properties = {
                         'power1': 255,
