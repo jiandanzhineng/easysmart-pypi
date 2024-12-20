@@ -59,6 +59,13 @@ class BaseDevice:
         }
         await self.publish(data)
 
+    async def set_multi_properties(self, properties):
+        data = {
+            'method': 'update',
+        }
+        data.update(properties)
+        await self.publish(data)
+
     def execute_action(self, action_name):
         ...
 

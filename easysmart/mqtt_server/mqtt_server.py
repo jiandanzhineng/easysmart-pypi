@@ -55,10 +55,20 @@ async def start_emqx_server(root_path):
     port_to_check = 1883
     check_info, is_port_used = check_port_in_use(port_to_check)
     if is_port_used:
-        if check_info['Socket'] and not check_info['Command_Line_netstat']:
-            raise f"端口{port_to_check}被系统占用，属于系统保留端口 请查看docs/port_in_use.md进行解决"
+        emqx_check_result = False
+        try:
+            emqx_check_result = await check_emqx_server(root_path)
+        except FileNotFoundError:
+            pass
+        if not emqx_check_result:
+            if check_info['Socket'] and not check_info['Command_Line_netstat']:
+                raise BaseException(f"端口{port_to_check}被系统占用，属于系统保留端口 请查看docs/port_in_use.md进行解决")
+            else:
+                raise BaseException(f"端口{port_to_check}被占用，请关闭占用的程序后重试")
         else:
-            raise f"端口{port_to_check}被占用，请关闭占用的程序后重试"
+            print(f'端口{port_to_check}被占用，但emqx已经启动')
+            return
+    
 
     # download emqx server if not exists
     emqx_path = root_path.joinpath(Path(r'emqx\bin\emqx_ctl'))
