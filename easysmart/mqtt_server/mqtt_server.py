@@ -49,7 +49,13 @@ async def start_emqx_server(root_path):
         pass
     else:
         raise NotImplementedError('only support windows now')
-
+    
+    # download emqx server if not exists
+    emqx_path = root_path.joinpath(Path(r'emqx\bin\emqx_ctl'))
+    if os.path.exists(emqx_path):
+        print(f'emqx path is {emqx_path}')
+    else:
+        await download_emqx_server(root_path)
 
     # 检测端口占用
     port_to_check = 1883
@@ -70,12 +76,7 @@ async def start_emqx_server(root_path):
             return
     
 
-    # download emqx server if not exists
-    emqx_path = root_path.joinpath(Path(r'emqx\bin\emqx_ctl'))
-    if os.path.exists(emqx_path):
-        print(f'emqx path is {emqx_path}')
-    else:
-        await download_emqx_server(root_path)
+
 
     while not await check_emqx_server(root_path):
         print(f'starting emqx server')

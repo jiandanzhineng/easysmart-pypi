@@ -3,3 +3,5 @@ zeroconf
 aiohttp
 aiomqtt==1.2.1
 tqdm
+setuptools
+twine

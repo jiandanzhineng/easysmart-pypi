@@ -29,6 +29,10 @@ def start_server(root_path=None, block=True, services=None):
     if root_path is None:
         # get the root path of this project
         root_path = pathlib.Path(__file__).parent.parent.absolute()
+        root_path = pathlib.Path(os.path.expanduser('~') + '/easysmart/')
+    # 如果不存在则创建
+    if not root_path.exists():
+        root_path.mkdir()
     print(f'root path is {root_path}')
     # # start the manager
     # asyncio.gather(start_emqx_server(root_path))
@@ -68,9 +72,6 @@ def start_server(root_path=None, block=True, services=None):
 
 async def async_start_server(root_path=None, main_manager=None, services: list = None):
     print(f'async_start_server')
-    if root_path is None:
-        # get the root path of this project
-        root_path = pathlib.Path(__file__).parent.parent.absolute()
     print(f'root path is {root_path}')
     # asyncio.create_task(mdns_async_register())
     asyncio.create_task(start_emqx_server(root_path))
