@@ -172,8 +172,10 @@ class WebServer(AutomaticService):
 
         devices = await self.device_filter(detail, filter)
         data = await request.post()
+        json_data = await request.json()
+        all_data = {**data, **json_data}
         new_data = {}
-        for k, v in data.items():
+        for k, v in all_data.items():
             value = v
             if str(value).isdigit():
                 value = int(value)
