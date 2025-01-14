@@ -13,17 +13,21 @@ async def control_tiaodan(manager: ezs.Manager):
         for device in manager.devices.values():
             if device.device_type == 'TD01':  # 检测设备是否是跳蛋
                 if onoff:
-                    properties = {
-                        'power1': 255,
-                        'power2': 255,
-                    }
-                    await device.set_multi_properties(properties)
+                    # properties = {
+                    #     'power1': 255,
+                    #     'power2': 255,
+                    # }
+                    # await device.set_multi_properties(properties)
+                    await device.set_property('power1', 255)
+                    await device.set_property('power2', 255)
                 else:
-                    properties = {
-                        'power1': 0,
-                        'power2': 0,
-                    }
-                    await device.set_multi_properties(properties)
+                    # properties = {
+                    #     'power1': 0,
+                    #     'power2': 0,
+                    # }
+                    # await device.set_multi_properties(properties)
+                    await device.set_property('power1', 0)
+                    await device.set_property('power2', 0)
         # if len(manager.devices) == 0 and time.time() - s > 30:
         #     run_flag = False
 
