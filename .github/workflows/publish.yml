@@ -1,0 +1,40 @@
+name: Package and Publish
+
+on:
+  push:
+    branches:
+      - main  # 你可以根据需要更改触发条件
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'  # 根据需要设置Python版本
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install twine
+
+      - name: Clean dist directory
+        run: |
+          if [ -d "dist" ]; then rm -rf dist/*; fi
+
+      - name: Run make_setup.py
+        run: python make_setup.py
+
+      - name: Build the package
+        run: python setup.py sdist
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: python -m twine upload dist/* --verbose
