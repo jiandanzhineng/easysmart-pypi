@@ -28,8 +28,7 @@ def start_server(root_path=None, block=True, services=None):
         set_event_loop_policy(WindowsSelectorEventLoopPolicy())
     if root_path is None:
         # get the root path of this project
-        root_path = pathlib.Path(__file__).parent.parent.absolute()
-        root_path = pathlib.Path(os.path.expanduser('~') + '/easysmart/')
+        root_path = pathlib.Path('c:/easysmart/')
     # 如果不存在则创建
     if not root_path.exists():
         root_path.mkdir()
