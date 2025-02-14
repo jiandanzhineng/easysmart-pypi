@@ -29,6 +29,8 @@ def start_server(root_path=None, block=True, services=None):
     if root_path is None:
         # get the root path of this project
         root_path = pathlib.Path('c:/easysmart/')
+    if isinstance(root_path, str):
+        root_path = pathlib.Path(root_path)
     # 如果不存在则创建
     if not root_path.exists():
         root_path.mkdir()
@@ -40,8 +42,6 @@ def start_server(root_path=None, block=True, services=None):
     thread = threading.Thread(target=mdns_register)
     thread.daemon = True
     thread.start()
-
-
 
     try:
         loop = asyncio.get_event_loop()

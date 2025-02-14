@@ -116,9 +116,9 @@ class Manager:
             try:
                 await self._async_loop_start()
             except aiomqtt.error.MqttError as e:
-                print(f'[{fail_num}]async_loop_start connect error: {e}')
+                print(f'[{fail_num}]连接未成功 10秒后下次连接: {e}')
                 fail_num += 1
-                await asyncio.sleep(3)
+                await asyncio.sleep(10)
             except Exception as e:
                 print(f'[{fail_num}]async_loop_start error: {e}')
                 if debug: traceback.print_exc()
